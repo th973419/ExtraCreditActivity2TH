@@ -1,1 +1,1 @@
-# ExtraCreditActivity2TH
+# ExtraCreditActivities
