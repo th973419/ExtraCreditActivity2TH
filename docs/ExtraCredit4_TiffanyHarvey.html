@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Customizing a basemap and adding a kml layer</title>
+<style>
+  html, body, #viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+</style>
+<link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/css/main.css">
+<script src="https://js.arcgis.com/4.21/"></script>
+<script>
+require ([
+"esri/Map",
+"esri/views/MapView",
+"esri/layers/VectorTileLayer",
+"esri/config",
+"esri/layers/KMLLayer"
+], function(Map, MapView, VectorTileLayer, esriConfig, KMLLayer)
+{
+  var myMap = new Map();
+
+    var myView = new MapView({
+        container: "viewDiv",
+        map: myMap,
+        center: [-88.9,13.5],
+        scale: 1600000
+  });
+var myBasemap = new VectorTileLayer({
+    url: "https://arts-sciences.maps.arcgis.com/sharing/rest/content/items/7076cce8d8084ebe91121680faa94d70/resources/styles/root.json?f=pjson"
+});
+
+myMap.add(myBasemap);
+    var myMines = "https://www.dl.dropboxusercontent.com/s/ljvq6tm5lkkr31x/MinesES.kml?dl=0"
+
+esriConfig.request.corsEnabledServers.push(myMines);
+
+    var mines = new KMLLayer ({
+    url: myMines,
+    });
+    myMap.add(mines);
+});
+</script>
+</head>
+<body>
+<div id = "viewDiv"> </div>
+</body>
+</html>

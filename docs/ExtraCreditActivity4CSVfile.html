@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Load a basic WebMap</title>
+<style>
+  html, 
+  body, 
+  #viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+</style>
+
+<link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/css/main.css">
+<script src="https://js.arcgis.com/4.21/"></script>
+
+<script>
+  require([
+    "esri/Map",
+    "esri/views/MapView",
+        "esri/config",
+    "esri/layers/FeatureLayer",
+        "esri/layers/CSVLayer",
+    "dojo/domReady!"
+  ], function (
+      Map, MapView, esriConfig, FeatureLayer, CSVLayer
+  ) {
+    var mymap = new Map ({
+        basemap: "dark-gray"
+    });
+var view = new MapView({
+    container: "viewDiv",
+    map: mymap,
+    center: [-102,35],
+    scale: 27800000
+});
+var url = "https://dl.dropboxusercontent.com/s/21l73w99t6dtxn3/all_hour.csv?dl=0";
+
+//ersiConfig.request.corsEnabledServers.push(url);
+
+var template = {
+    title:"Earthquake Info",
+    content: "Magnitude{mag} {type} hit {place} on {time}"
+};
+
+var earthquakes = new CSVLayer ({
+    url: url,
+    copyright: "USGS Earthquakes",
+    popupTemplate: template
+});
+
+earthquakes.renderer = {
+    type: "simple", //outcast a new "simpleRenderer"
+    symbol: {
+        type: "simple-marker",
+        color: [238, 69, 0, 0.75],
+        size: 10,
+        outline: {
+            width:0.5,
+            color: "white"
+    }
+}
+  };
+mymap.add(earthquakes);
+});
+</script>
+</head>
+<body>
+<div id = "viewDiv"> </div>
+</body>
+</html>

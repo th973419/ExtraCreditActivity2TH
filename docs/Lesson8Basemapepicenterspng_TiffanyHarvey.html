@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Customizing a basemap and adding a kml layer</title>
+<style>
+  html, body, #viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+</style>
+<link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/css/main.css">
+<script src="https://js.arcgis.com/4.21/"></script>
+<script>
+require ([
+"esri/Map",
+"esri/views/MapView",
+"esri/Basemap",
+"esri/layers/VectorTileLayer",
+"esri/config",
+"esri/layers/CSVLayer",
+"esri/renderers/SimpleRenderer",
+"esri/symbols/PictureMarkerSymbol"
+], function(Map, MapView, Basemap, VectorTileLayer, esriConfig, CSVLayer,SimpleRenderer,PictureMarkerSymbol)
+{
+var myBasemap = new Basemap ({
+    baseLayers: [
+        new VectorTileLayer ({
+            portalItem: {
+                id: "7076cce8d8084ebe91121680faa94d70"
+            }
+        })
+    ]
+});
+var myMap = new Map({
+    basemap:myBasemap
+});
+    var myView = new MapView({
+        container: "viewDiv",
+        map: myMap,
+        center: [-115.5, 39],
+        scale: 16000000
+  });
+  var usgsFeed = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.csv"
+
+esriConfig.request.corsEnabledServers.push(usgsFeed);
+
+var quakeSym = new PictureMarkerSymbol ({
+    url: "https://www.dl.dropboxusercontent.com/s/f1tby1kiemehzli/earthqkSmbl.png?dl=0",
+    width: "20px",
+    height: "20px"
+});
+
+var quakeRenderer = new SimpleRenderer ({
+    symbol: quakeSym
+});
+
+var template = ({
+    title: "Earthquake Info",
+    content: "Magnitude{mag} {type} hit {place} on {time}",
+});
+
+var epicenter = new CSVLayer({
+    url:usgsFeed,
+    copyright:"USGS Earthquakes",
+    popupTemplate: template,
+    renderer: quakeRenderer
+});
+
+myMap.add(epicenter);
+
+});
+</script>
+</head>
+<body>
+<div id = "viewDiv"> </div>
+</body>
+</html>
