@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Layer visibility control- 4.21</title>
+<style>
+  html, body, #viewDiv {
+    font-family: sans-serif;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+  #viewDiv {
+      position: absolute;
+      right: 0;
+      left: 0;
+      top: 0;
+      bottom: 60px;
+  }
+  .footer {
+      position: absolute;
+      bottom: 0;
+      height: 50px;
+      width: 100%;
+  }
+  .sublayers {
+      margin: 0 auto;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      overflow: auto;
+  }
+  .sublayers-item {
+      flex-grow: 4;
+      background-color: beige;
+      color: black;
+      margin: 1px;
+      width: 50%;
+      padding: 20px;
+      overflow: auto;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.7em;
+  }
+  .visible-layer {
+      color: black;
+      background-color: cornsilk;
+  }
+</style>
+
+<link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/css/main.css">
+<script src="https://js.arcgis.com/4.21/"></script>
+<script>
+    require ([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/MapImageLayer"
+    ], function(
+        Map, MapView, MapImageLayer
+    ) {
+        var mymap = new Map ({
+            basemap: "topo"
+        });
+        var view = new MapView ({
+            container: "viewDiv",
+            map: mymap,
+            center: [-100.17, 47.18],
+            //zoom:7.5
+            scale: 2000000
+        });
+
+        var layer = new MapImageLayer ({
+            url: "https://ndgishub.nd.gov/ArcGIS/rest/services/All_Transportation/MapServer",
+            sublayers: [{
+                id: 12,
+                title: "Highways",
+                visibile: true
+            }, {
+                id: 7,
+                title: "Railroads",
+                visible: true
+            }
+        ]
+        });
+        mymap.add(layer);
+
+/* Update the map based on which layer is visible and reflect what is available in the survey*/
+        layer.when(function(){
+            layer.sublayers.map(function(sublayer){
+                var id = sublayer.id;
+                var visible= sublayer.visible;
+                var node = document.querySelector(
+                    ".sublayers-item[data-id='" + id + "']");
+                if (visible) {
+                    node.classList.add("visible-layer");
+                }
+            });
+        });
+        /*Listen for buttons to turn layers on/off */
+        var sublayersElement =
+        document.querySelector(".sublayers");
+        sublayersElement.addEventListener("click", function(event) {
+            var id= event.target.getAttribute("data-id");
+            if (id) {
+                var sublayer = 
+                layer.findSublayerById(parseInt(id));
+                var node = 
+                document.querySelector(".sublayers-item[data-id='"+
+                id + "']");
+                sublayer.visible = !sublayer.visible;
+                node.classList.toggle("visible-layer");
+            }
+        });
+    });
+</script>
+</head>
+<body>
+ <div id="viewDiv"></div>
+    <div class="footer">
+    <div class="sublayers">
+        <div class= "sublayers-item" data-id="12">Highways</div>
+        <div class="sublayers-item" data-id="7">Railroads</div>
+        </div>
+    </div>
+</body>
+</html>

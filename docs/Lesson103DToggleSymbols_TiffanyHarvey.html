@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Toggle 3D Symbols</title>
+<style>
+  html, body, #viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+
+  #paneDiv {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      padding: 12px;
+      background-color: rgba (0,0,0,0.5);
+      color: white;
+  }
+</style>
+
+<link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/css/main.css">
+<script src="https://js.arcgis.com/4.21/"></script>
+<script>
+    require ([
+        "esri/Map",
+        "esri/views/SceneView",
+        "esri/layers/FeatureLayer"
+    ], function(
+        Map, SceneView, FeatureLayer
+    ){
+        var mymap = new Map ({
+            basemap: "gray"
+        });
+        
+        var view = new SceneView ({
+            container: "viewDiv",
+            map: mymap,
+            zoom: 4.5,
+            camera: {
+            position: {
+                x: -130.585522,
+                y: 19.8333333,
+                z: 2000000},
+                //2.d Set the camera heading
+                heading: 35,
+                //2.e Set the camera tilt
+                tilt: 45,
+            }
+        });
+        view.goTo({
+            heading: 45,
+            tilt: 60
+        })
+
+        //create iconsymbol and add to renderer
+        var iconsymbol = {
+            type: "point-3d", //autocasts as new PointSymbol3D()
+            symbolLayers: [{
+                type: "icon", //autocasts as new IconSymbol3DLayer()
+                size: 12,
+                resource: {
+                    primitive: "kite"
+                },
+                material: {
+                    color: "blue",
+                },
+                outline: {
+                    color: "white",
+                    size: 1
+                }
+            }]
+        };
+        var iconSymbolRenderer = {
+            type: "simple", //autocasts as new SimpleRenderer()
+            symbol: iconsymbol
+        };
+
+        var epicenters = new FeatureLayer ({
+            url: "https://earthquake.usgs.gov/arcgis/rest/services/eq/scenarios/MapServer",
+                renderer: iconSymbolRenderer
+
+        });
+        mymap.add(epicenters);
+
+        var iconSymbolRenderer = {
+            type: "simple", //autocasts as new SimpleRenderer
+            symbol: iconsymbol
+        };
+
+                //create objectSymbol and add to renderer
+        var objectSymbol = {
+            type: "point-3d", //autocasts as new PointSymbol3D()
+            symbolLayers: [{
+                type: "object", //autocasts as new ObjectSymbol3DLayer()
+                width: 70000,
+                height: 100000,
+                resource: {
+                    primitive: "cone"
+                },
+                material: {
+                    color: "blue"
+                }
+            }]
+        };
+        var objectSymbolRenderer = {
+            type: "simple", //autocasts as new SimpleRenderer()
+            symbol: objectSymbol
+        };
+        var epicenters = new FeatureLayer ({
+            url: "https://earthquake.usgs.gov/arcgis/rest/services/eq/scenarios/MapServer",
+            renderer: iconSymbolRenderer
+        });
+        mymap.add(epicenters);
+
+        //Register the events listener to toggle between objectSymbol and iconSymbol
+
+        document.getElementById ("asIcon").addEventListener("click", function() {
+            epicenters.renderer = objectSymbolRenderer;
+        });
+        document.getElementById("asObject").addEventListener ("click", function() {
+            epicenters.renderer = objectSymbolRenderer;
+        })
+    });
+</script>
+</head>
+<body>
+<div id="viewDiv"></div>
+<div id="paneDiv">Show points as:
+    <div>
+        <input type= "radio" name = "symbolType"
+        value = "icon" checked= "checked" id="asIcon" />
+        <label for= "asIcon">3D Icon</label>
+        </div>
+        <div>
+        <input type = "radio" name = "symbolType"
+        value= "object" id="asObject" />
+        <label for= "asObject">3D Object</label>
+        </div>
+    </div>
+</body>
+</html>
