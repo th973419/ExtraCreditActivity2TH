@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>A new title goes here</title>
+<style>
+  html, body, #viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+</style>
+
+<link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/css/main.css">
+<script src="https://js.arcgis.com/4.21/"></script>
+
+<script>
+  require([
+    "esri/Map",
+    "esri/views/MapView",
+    "esri/layers/FeatureLayer",
+    "esri/layers/GroupLayer",
+    "esri/widgets/LayerList"
+  ], function(
+            Map, MapView, FeatureLayer, GroupLayer, LayerList
+  ) {
+    var mymap = new Map({
+      basemap: "gray",
+      //laayers:[myImage]
+    });
+    var view = new MapView({
+      container: "viewDiv",
+      map: mymap,
+      center: [-82.101257, 39.329239],
+      zoom: 10
+    });
+    var zipCodeT = new FeatureLayer ({
+        url: "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/PUMA_TAD_TAZ_UGA_ZCTA/MapServer/9"
+    });
+    var countySubd = new FeatureLayer ({
+        url: "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Places_CouSub_ConCity_SubMCD/MapServer/1"
+    });
+    var group1 = new GroupLayer ({
+        title:"Athens County Subdivisions and Zip codes",
+        layers: [zipCodeT, countySubd]
+    });
+    mymap.add(group1);
+
+    var myLegendlist = new LayerList ({
+        view: view,
+        layerInfos:[{
+            layer: group1,
+        }]
+    });
+    view.ui.add(myLegendlist, "bottom-right");
+  });
+</script>
+</head>
+<body>
+ 
+
+<div id = "viewDiv"> </div>
+
+
+</body>
+</html>
