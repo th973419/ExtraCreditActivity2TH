@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Legend and Layers List</title>
+<style>
+  html, body {
+    font-family: sans-serif;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+  #viewDiv {
+      position: absolute;
+      right: 0;
+      left: 0;
+      top: 0;
+      bottom: 100px;
+  }
+  .footer {
+      position: absolute;
+      bottom: 0;
+      height: 100px;
+      width: 100%;
+      color: black;
+      background-color: beige;
+      text-align: center;
+  }
+  .opacity-slider {
+      padding: 0;
+      width: 85%;
+  }
+</style>
+
+<link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/css/main.css">
+<script src="https://js.arcgis.com/4.21/"></script>
+<script>
+  require ([
+    "esri/Map",
+    "esri/views/MapView",
+    "esri/layers/FeatureLayer",
+    "esri/widgets/Feature",
+    "esri/widgets/LayerList",
+    "esri/layers/support/LabelClass"
+  ], function(Map, MapView, FeatureLayer, Feature, LayerList, LabelClass)
+{
+    var myMap = new Map ({
+        basemap: "topo"
+    });
+
+    var myView = new MapView ({
+        container: "viewDiv",
+        map: myMap,
+        center: [-115.5,45.2],
+        scale: 7000000
+    });
+        const counties = new FeatureLayer ({
+        portalItem: {
+            id: "7b25e608411140c990957d9c155ee16b"
+        },
+            title: "Counties"
+        });
+        var countyLabels = new LabelClass ({
+            labelExpressionInfo: {expression:
+            "$feature.NAME10"},
+            symbol: {
+                type: "text",
+                color: "black",
+                haloSize: 1,
+                haloColor: "white"
+            }
+        });
+        counties.labelingInfo = [ countyLabels];
+        myMap.add(counties);
+    
+        const highways = new FeatureLayer ({
+            url: "https://carto.nationalmap.gov/arcgis/rest/services/transportation/MapServer/7",
+            title: "Highways"
+        });
+        myMap.add(highways);
+
+highways.when(function(){
+    var slider = document.querySelector(".opacity-slider");
+    var opacity = 
+    document.querySelector (".opacity");
+    slider.addEventListener ("input", function(){
+        highways.opacity = slider.value;
+        opacity.innerText = slider.value;
+    });
+});
+    const layerList = new LayerList ({
+        view:myView,
+        listItemCreatedFunction: function(event){
+            const item = event.item;
+            if (item.layer.type !="group"){
+                item.panel = {
+                    content: "legend",
+                    open: true
+                };
+            }
+        }
+});
+myView.ui.add(layerList, {position: "top-left", index:2});
+//Hoverover
+
+myView.when().then(function(){
+    const graphic = {
+        popupTemplate:{
+            content: "Mouse over features to show details..."
+        }
+    };
+    const feature = new Feature({
+        graphic: graphic,
+        view: myView
+    });
+    myView.ui.add(feature,{position:"top-right", index:2});
+    
+    myView.whenLayerView(counties).then(function(layerView){
+        let highlight;
+
+        myView.on("pointer-move", function(event){
+            myView.hitTest(event).then(function(event){
+                let results =
+                event.results.filter(function(result){
+                return
+                result.graphic.layer.popupTemplate;
+            });
+        let result = results[0];
+        highlight && highlight.remove();
+        
+        if(result) {
+            feature.graphic= result.graphic;
+            highlight = 
+            layerView.highlight(result.graphic);
+        } else{
+            feature.graphic = graphic;
+        }
+        });
+        });
+    });
+});
+});
+</script>
+</head>
+<body>
+<div id = "viewDiv"> </div>
+    <div class= "footer">
+        <h4>Highways Opacity =<span
+        class= "opacity">1</span></h4>
+        <input class = "opacity-slider" type="range"
+        min="0" max="1" step= "0.001" value="1">
+    </div>
+</body>
+</html>
