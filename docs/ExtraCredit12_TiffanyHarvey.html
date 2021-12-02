@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>A new title goes here</title>
+<style>
+  html, body, #viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+</style>
+
+<link rel="stylesheet" href="https://js.arcgis.com/4.21/esri/css/main.css">
+<script src="https://js.arcgis.com/4.21/"></script>
+<script>
+  require ([
+    "esri/Map",
+    "esri/views/MapView",
+    "esri/layers/FeatureLayer",
+    "esri/widgets/ScaleBar"
+  ], function(Map, MapView, FeatureLayer, ScaleBar
+  ){
+
+    var mymap = new Map ({
+        basemap: "satellite",
+    });
+    var view = new MapView({
+      container: "viewDiv",
+      map: mymap,
+      center: [-83.9987900, 39.9611800],
+      zoom: 10
+    });
+
+    var walkability = new FeatureLayer ({
+      url: "https://geodata.epa.gov/arcgis/rest/services/OA/WalkabilityIndex/Mapserver"
+    });
+    mymap.add(walkability);
+
+    let scaleBar = new ScaleBar ({
+      view: view
+    });
+    //Add Widget to the bottom left corner of the view
+    view.ui.add(scaleBar, {
+      position: "bottom-left"
+    });
+    });
+</script>
+</head>
+<body>
+<div id = "viewDiv"> </div>
+</body>
+</html>
